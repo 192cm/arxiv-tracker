@@ -24,7 +24,7 @@ cp .env.example .env
 ### 1. CLI
 
 ```bash
-python -m src.fetcher          # 최근 1일치 LLM 논문 수집
+python -m src.fetcher          # 최근 논문 수집 (평일: days_back=1, 월요일: days_back=3 권장)
 python -m src.summarizer       # 수집된 논문 중 미요약본 요약
 ```
 
@@ -48,7 +48,7 @@ uvicorn src.app:app --reload --port 8000
 
 ## 설정
 
-`config.yaml`에서 키워드, 카테고리, 모델명 등 수정 가능.
+`config.yaml`에서 키워드, 카테고리, 모델명, `days_back` 등 수정 가능.
 
 ## 클로드 코드 기법 사용 내역
 

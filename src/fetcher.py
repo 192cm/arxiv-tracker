@@ -7,6 +7,9 @@ from pathlib import Path
 import arxiv
 import yaml
 
+# arXiv API 정책: 애플리케이션 식별 User-Agent 권장
+arxiv._USER_AGENT = "arxiv-tracker/1.0 (kyle080405@gmail.com)"
+
 from . import db
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.yaml"

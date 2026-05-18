@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sqlite3 \"c:\\\\Users\\\\kyle0\\\\Develops\\\\arxiv-tracker\\\\data\\\\papers.db\" \"SELECT COUNT\\(*\\) as total_papers FROM papers; SELECT COUNT\\(*\\) as summarized FROM papers WHERE summary_ko IS NOT NULL;\")",
+      "Bash(conda run *)",
+      "Bash(python -m src.fetcher)",
+      "PowerShell(conda info --envs 2>&1)",
+      "Read(//c/Users/kyle0/miniconda3/envs/**)",
+      "Read(//c/Users/kyle0/anaconda3/**)",
+      "Read(//c/Users/kyle0/AppData/Local/miniconda3/**)",
+      "Bash(~/miniconda3/envs/arxiv/bin/python -m src.fetcher)",
+      "Bash(~/miniconda3/envs/arxiv/Scripts/python -m src.fetcher)",
+      "PowerShell(& \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -m src.fetcher 2>&1)",
+      "PowerShell(Start-Sleep -Seconds 15; Set-Location \"c:\\\\Users\\\\kyle0\\\\Develops\\\\arxiv-tracker\"; & \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -m src.fetcher 2>&1)",
+      "PowerShell($response = Invoke-WebRequest -Uri \"https://export.arxiv.org/api/query?search_query=cat:cs.CL&max_results=1\" -UseBasicParsing -ErrorAction SilentlyContinue; $response.StatusCode)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\kyle0\\\\Develops\\\\arxiv-tracker\"; & \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -m src.fetcher 2>&1)",
+      "PowerShell(& \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -c \"import arxiv; print\\(arxiv.__version__\\); import inspect; src = inspect.getsource\\(arxiv.Client._Client__try_parse_feed\\); print\\(src[:800]\\)\")",
+      "PowerShell(& \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -c \"import arxiv; import inspect; src = inspect.getsource\\(arxiv.Client._Client__try_parse_feed\\); print\\(src[800:]\\)\")",
+      "PowerShell(& \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -c \"import arxiv; print\\(arxiv._USER_AGENT\\)\")",
+      "PowerShell(& \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -c \"import arxiv; import inspect; print\\(inspect.getsource\\(arxiv.Client.__init__\\)\\)\")",
+      "PowerShell($r = Invoke-WebRequest -Uri \"https://export.arxiv.org/api/query?search_query=cat:cs.CL&max_results=1\" -Headers @{\"User-Agent\"=\"arxiv-tracker/1.0 \\(kyle080405@gmail.com\\)\"} -UseBasicParsing -ErrorAction SilentlyContinue; Write-Output $r.StatusCode)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\kyle0\\\\Develops\\\\arxiv-tracker\"; & \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -m src.summarizer 2>&1)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\kyle0\\\\Develops\\\\arxiv-tracker\"; & \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -m uvicorn src.app:app --reload --port 8000 2>&1)",
+      "Read(//c/Users/kyle0/.claude/projects/c--Users-kyle0-Develops-arxiv-tracker/memory/**)",
+      "Bash(git add *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\kyle0\\.claude\\projects\\c--Users-kyle0-Develops-arxiv-tracker\\memory"
+    ]
+  }
+}

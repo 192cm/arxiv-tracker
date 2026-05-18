@@ -12,17 +12,18 @@
 
 **주요 기능**
 - arXiv 카테고리(cs.CL, cs.LG, cs.AI)와 키워드 기반 자동 수집
-- Gemini 2.5 Flash로 한국어 요약 (핵심 기여 / 방법론 / 결과 / 한계 / 키워드)
+- Gemini(`gemini-3.1-flash-lite`)로 한국어 요약 (핵심 기여 / 방법론 / 결과 / 한계 / 키워드)
 - SQLite로 영구 저장, 즐겨찾기 및 검색 지원
 - Tailwind 스타일의 깔끔한 웹 인터페이스
 
 **LLM 선택 근거**
 
-요약 백엔드로 Gemini 2.5 Flash를 선택한 이유는 다음과 같다.
+요약 백엔드로 `gemini-3.1-flash-lite`를 선택한 이유는 다음과 같다.
 
 1. **무료 티어**: Google AI Studio의 무료 할당량(분당 RPM, 일당 RPD)이 개인용 데일리 트래킹에 충분
-2. **속도**: Flash 모델은 abstract 수준의 짧은 입력에 대해 1초 이내 응답
+2. **속도**: Flash-Lite 모델은 abstract 수준의 짧은 입력에 대해 응답이 빠름
 3. **한국어 품질**: 최신 Gemini는 한국어 자연스러움이 양호
+4. **설정 분리**: `config.yaml`의 `summary_model`만 바꾸면 Pro 등 다른 모델로 전환 가능
 
 개발 과정에서는 별도로 **Claude Code**(Anthropic의 터미널 기반 코딩 에이전트)를 활용해 코드 작성/리팩토링/디버깅을 수행했다. 즉, **런타임 LLM(Gemini)**과 **개발 도구(Claude Code)**가 분리된 구조다.
 
@@ -94,6 +95,8 @@ claude
 
 브라우저에서 `http://localhost:8000` 접속.
 
+> **참고**: 월요일에는 주말치 논문까지 포함하려면 `config.yaml`의 `days_back`를 `3`으로 설정한다.
+
 ---
 
 ## 4. 배운 점과 한계
@@ -101,4 +104,5 @@ claude
 - 슬래시 명령과 스킬을 같이 쓰면 "명시적 호출(명령)"과 "암묵적 호출(스킬)"이 자연스럽게 결합된다. 예를 들어 `/daily_papers`를 호출하면 그 안에서 자동으로 paper-summary 스킬의 포맷 규칙이 참조된다.
 - Hook은 자연어로 설정 가능해서 진입장벽이 낮았다. 다만 `.claude/settings.json` 직접 수정도 익혀두면 디버깅이 쉬워진다.
 - **런타임 LLM(Gemini)과 개발 도구(Claude Code)를 분리**한 설계가 의외로 자연스러웠다. Claude Code가 Gemini SDK 호출 코드를 작성하고 디버깅해주는 구조.
-- 한계: 현재는 abstract만 요약하므로 깊은 분석은 제한적. 향후 PDF 다운로드 후 본문까지 요약하는 기능을 추가할 예정.
+- 개발 중 발견한 이슈: `arxiv` v4.0.0은 내부적으로 `requests`를 쓰므로 User-Agent를 `arxiv._USER_AGENT`로 오버라이드해야 arXiv의 429 차단을 피할 수 있었다. 신버전 Starlette에서는 `TemplateResponse` 호출 방식도 변경됐다(`request=` 키워드 인자로 분리). 라이브러리 버전 변화에 대한 주의가 필요하다.
+- **한계**: 현재는 abstract만 요약하므로 깊은 분석은 제한적. 향후 PDF 다운로드 후 본문까지 요약하는 기능을 추가할 예정.

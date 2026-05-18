@@ -24,8 +24,9 @@ def _startup() -> None:
 def index(request: Request, q: str | None = None, fav: int = 0):
     papers = db.list_papers(limit=100, favorite_only=bool(fav), keyword=q)
     return templates.TemplateResponse(
-        "index.html",
-        {"request": request, "papers": papers, "q": q or "", "fav": fav},
+        request=request,
+        name="index.html",
+        context={"papers": papers, "q": q or "", "fav": fav},
     )
 
 
@@ -35,8 +36,9 @@ def paper_detail(request: Request, arxiv_id: str):
     if paper is None:
         return HTMLResponse("Not found", status_code=404)
     return templates.TemplateResponse(
-        "paper.html",
-        {"request": request, "paper": paper},
+        request=request,
+        name="paper.html",
+        context={"paper": paper},
     )
 
 

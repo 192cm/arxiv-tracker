@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>arxiv-tracker × Claude Code 기술 개요</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #222636;
+      --border: #2e3348;
+      --accent: #7c6af7;
+      --accent2: #4fa8e0;
+      --accent3: #50c878;
+      --accent4: #f0a050;
+      --accent5: #e06060;
+      --text: #e2e4f0;
+      --text-muted: #8890aa;
+      --tag-bg: #2a2f4a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* ── TOP HEADER ─────────────────────────────────────────── */
+    .top-header {
+      background: linear-gradient(135deg, #1a1d27 0%, #13162a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 40px 40px;
+      text-align: center;
+    }
+    .top-header .subtitle {
+      color: var(--accent);
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .top-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .top-header h1 span { color: var(--accent); }
+    .top-header .desc {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 680px;
+      margin: 0 auto 28px;
+    }
+    .tech-count-row {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .tech-count-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .tech-count-item strong { color: var(--text); font-size: 18px; display: block; }
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 32px 80px;
+    }
+
+    /* ── SECTION HEADER ─────────────────────────────────────── */
+    .section-title {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      margin-top: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── TECH CARD ───────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 30px 32px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--card-color, var(--accent));
+      border-radius: 4px 0 0 4px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .card-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      background: var(--icon-bg, rgba(124,106,247,0.15));
+    }
+    .card-title-block h2 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .card-title-block .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 20px;
+      background: var(--card-color, var(--accent));
+      color: #fff;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    .card-body p {
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .card-body p strong { color: var(--text); }
+
+    /* ── TWO-COL GRID ────────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 740px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    /* ── DETAIL BOX ──────────────────────────────────────────── */
+    .detail-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .detail-box h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .detail-box ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .detail-box ul li {
+      font-size: 14px;
+      color: var(--text-muted);
+      padding-left: 16px;
+      position: relative;
+    }
+    .detail-box ul li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--card-color, var(--accent));
+    }
+    .detail-box ul li strong { color: var(--text); }
+
+    /* ── CODE BLOCK ──────────────────────────────────────────── */
+    .code-block {
+      background: #0d0f18;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      color: #c9d1e0;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.6;
+    }
+    .code-block .kw  { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .cmt { color: #546e7a; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .fn  { color: #82aaff; }
+    .code-block .tag { color: #89ddff; }
+
+    /* ── FLOW DIAGRAM ────────────────────────────────────────── */
+    .flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0;
+    }
+    .flow-step {
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .flow-arrow {
+      color: var(--text-muted);
+      font-size: 18px;
+    }
+
+    /* ── HIGHLIGHT PILL ROW ──────────────────────────────────── */
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .pill {
+      background: var(--tag-bg);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .pill.highlight {
+      border-color: var(--card-color, var(--accent));
+      color: var(--card-color, var(--accent));
+    }
+
+    /* ── COMPARE TABLE ───────────────────────────────────────── */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .compare-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+    .compare-table td:first-child { color: var(--text); font-weight: 600; }
+    .compare-table tr:last-child td { border-bottom: none; }
+
+    /* ── ARCHITECTURE OVERVIEW ───────────────────────────────── */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+    @media (max-width: 640px) { .arch-grid { grid-template-columns: 1fr; } }
+    .arch-node {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      background: var(--surface2);
+    }
+    .arch-node .arch-icon { font-size: 24px; margin-bottom: 8px; }
+    .arch-node .arch-label { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .arch-node .arch-desc  { font-size: 12px; color: var(--text-muted); }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── TOC ─────────────────────────────────────────────────── */
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 40px;
+    }
+    .toc h2 { font-size: 14px; font-weight: 700; margin-bottom: 14px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      font-size: 14px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .toc-item:hover { background: var(--surface2); border-color: var(--accent); color: var(--text); }
+    .toc-item .toc-num { font-size: 11px; background: var(--tag-bg); border-radius: 4px; padding: 1px 6px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- ── TOP HEADER ───────────────────────────────────────────── -->
+<div class="top-header">
+  <div class="subtitle">Claude Code 기술 문서</div>
+  <h1>arxiv-tracker <span>×</span> Claude</h1>
+  <div class="desc">
+    이 프로젝트에서 사용된 Claude Code의 핵심 기술 6가지 — 각각의 개념과 실제 활용 방식을 정리한 개요 문서.
+  </div>
+  <div class="tech-count-row">
+    <div class="tech-count-item"><strong>6</strong>가지 Claude 기술</div>
+    <div class="tech-count-item"><strong>3</strong>개 Custom Commands</div>
+    <div class="tech-count-item"><strong>1</strong>개 Skill</div>
+    <div class="tech-count-item"><strong>1</strong>개 Subagent</div>
+    <div class="tech-count-item"><strong>2</strong>개 Hook 설정</div>
+  </div>
+</div>
+
+<!-- ── MAIN CONTENT ───────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>목차</h2>
+    <div class="toc-grid">
+      <a class="toc-item" href="#sec-claudemd"><span class="toc-num">01</span> 📄 CLAUDE.md</a>
+      <a class="toc-item" href="#sec-commands"><span class="toc-num">02</span> ⚡ Slash Commands</a>
+      <a class="toc-item" href="#sec-skills"><span class="toc-num">03</span> 🔧 Skills</a>
+      <a class="toc-item" href="#sec-agents"><span class="toc-num">04</span> 🤖 Subagents</a>
+      <a class="toc-item" href="#sec-hooks"><span class="toc-num">05</span> 🪝 Hooks</a>
+      <a class="toc-item" href="#sec-memory"><span class="toc-num">06</span> 🧠 Auto Memory</a>
+    </div>
+  </div>
+
+  <!-- ── 01 CLAUDE.md ─────────────────────────────────────────── -->
+  <div class="section-title" id="sec-claudemd">01 · 프로젝트 지시 파일</div>
+
+  <div class="card" style="--card-color: #7c6af7; --icon-bg: rgba(124,106,247,0.12);">
+    <div class="card-header">
+      <div class="card-icon">📄</div>
+      <div class="card-title-block">
+        <h2>CLAUDE.md</h2>
+        <span class="badge">Project Instructions</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>
+        Claude Code가 프로젝트에 들어왔을 때 <strong>자동으로 읽는 지시 파일</strong>이다.
+        README처럼 사람이 읽는 문서가 아니라, Claude에게 "이 프로젝트에서 어떻게 행동해야 하는가"를 알려주는
+        <strong>AI용 컨텍스트 주입 파일</strong>이다. 모든 대화 세션에서 자동 로드되므로
+        매번 배경을 설명하지 않아도 된다.
+      </p>
+
+      <div class="two-col">
+        <div class="detail-box">
+          <h3>개념</h3>
+          <ul>
+            <li>프로젝트 루트에 위치 — 자동 로드</li>
+            <li>git에 커밋되어 팀 전체에 공유 가능</li>
+            <li>Claude의 행동 규칙, 금기사항 정의</li>
+            <li>아키텍처, 실행 명령, 컨벤션 문서화</li>
+            <li>중첩 디렉터리에도 배치 가능 (범위 제한)</li>
+          </ul>
+        </div>
+        <div class="detail-box">
+          <h3>이 프로젝트의 활용</h3>
+          <ul>
+            <li><strong>목적 설명:</strong> 부산대 생성모델 수업 과제 → 연구 도구</li>
+            <li><strong>아키텍처 맵:</strong> fetcher → summarizer → app 흐름</li>
+            <li><strong>컨벤션 강제:</strong> GEMINI_API_KEY를 코드에 넣지 말 것</li>
+            <li><strong>모델 관리:</strong> config.yaml에서만 모델 변경</li>
+            <li><strong>API 예절:</strong> delay_seconds=3 이하로 줄이지 말 것</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="code-block"><span class="cmt">## 컨벤션  (CLAUDE.md 일부)</span>
+<span class="kw">-</span> <span class="fn">GEMINI_API_KEY</span>는 절대 코드/git에 들어가지 않는다.
+<span class="kw">-</span> 모델 선택은 <span class="str">config.yaml</span>의 <span class="fn">summary_model</span>에서만 관리.
+<span class="kw">-</span> arXiv API: <span class="fn">delay_seconds=3</span>, 더 짧게 줄이지 말 것.
+<span class="kw">-</span> 새 SQL 컬럼 → <span class="fn">SCHEMA</span> 수정 + 마이그레이션 함수 같이 작성.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 02 SLASH COMMANDS ─────────────────────────────────────── -->
+  <div class="section-title" id="sec-commands">02 · 슬래시 커맨드</div>
+
+  <div class="card" style="--card-color: #4fa8e0; --icon-bg: rgba(79,168,224,0.12);">
+    <div class="card-header">
+      <div class="card-icon">⚡</div>
+      <div class="card-title-block">
+        <h2>Custom Slash Commands</h2>
+        <span class="badge" style="background:#4fa8e0;">Automation</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>
+        <strong>.claude/commands/</strong> 디렉터리에 마크다운 파일을 두면 Claude Code에서
+        <strong>/파일명</strong>으로 바로 호출할 수 있다. 반복적인 작업 흐름을
+        한 번의 명령으로 자동화하는 일종의 <strong>매크로 + 프롬프트 템플릿</strong>이다.
+        frontmatter로 허용 도구, 인자 힌트 등을 설정할 수 있다.
+      </p>
+
+      <div class="flow">
+        <div class="flow-step">사용자: /daily_papers</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">src/fetcher 실행</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">src/summarizer 실행</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">DB에서 상위 5편 출력</div>
+      </div>
+
+      <div class="two-col">
+        <!-- daily_papers -->
+        <div class="detail-box">
+          <h3>/daily_papers</h3>
+          <ul>
+            <li>fetch + summarize 한 번에 실행</li>
+            <li>최신 논문 5편 한국어 요약 출력</li>
+            <li>허용 도구: <strong>Bash, Read</strong></li>
+            <li>GEMINI_API_KEY 없으면 자동 안내</li>
+            <li>매일 아침 루틴으로 설계됨</li>
+          </ul>
+        </div>
+        <!-- search_topic -->
+        <div class="detail-box">
+          <h3>/search_topic &lt;키워드&gt;</h3>
+          <ul>
+            <li>일회성 arXiv 즉석 검색 (DB 저장 안 함)</li>
+            <li>cs.CL / cs.LG / cs.AI 카테고리 제한</li>
+            <li>인자 없으면 키워드 입력 유도</li>
+            <li>허용 도구: <strong>Bash, Read, Write</strong></li>
+            <li>paper-summary 형식으로 요약 통일</li>
+          </ul>
+        </div>
+        <!-- my_save -->
+        <div class="detail-box" style="grid-column: 1 / -1;">
+          <h3>/my_save — 세션 진행상황 저장</h3>
+          <ul>
+            <li>이번 세션에서 변경된 파일, 결정, 통찰 검토</li>
+            <li><strong>반복 적용될 규칙만</strong> CLAUDE.md에 추가 (일회성 내용 제외)</li>
+            <li>기존 섹션 구조를 유지하며 적합한 위치에 삽입</li>
+            <li>추가할 내용이 없으면 수정하지 않고 사유를 사용자에게 보고</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="code-block"><span class="cmt">--- (search_topic.md frontmatter)</span>
+<span class="fn">description</span>: 특정 주제 키워드로 arXiv를 즉석에서 검색
+<span class="fn">allowed-tools</span>: Bash, Read, Write
+<span class="fn">argument-hint</span>: &lt;검색할 주제 키워드&gt;
+---
+사용자가 인자로 넣은 주제 <span class="str">$ARGUMENTS</span> 에 대해 다음을 수행하라:
+<span class="num">1</span>. arxiv 패키지로 최신 논문 <span class="num">5</span>편 수집 (cs.CL, cs.LG, cs.AI)
+<span class="num">2</span>. paper-summary 스킬 형식으로 한국어 요약
+<span class="num">3</span>. 결과 출력 (DB에는 저장하지 않음)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 03 SKILLS ─────────────────────────────────────────────── -->
+  <div class="section-title" id="sec-skills">03 · 스킬</div>
+
+  <div class="card" style="--card-color: #50c878; --icon-bg: rgba(80,200,120,0.12);">
+    <div class="card-header">
+      <div class="card-icon">🔧</div>
+      <div class="card-title-block">
+        <h2>Skills</h2>
+        <span class="badge" style="background:#50c878;">Reusable Behavior</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>
+        Slash Command가 "실행 흐름의 자동화"라면, Skill은 Claude의 <strong>출력 형식·행동 방식을 표준화</strong>하는 재사용 가능한 지시 템플릿이다.
+        <strong>.claude/skills/&lt;이름&gt;/SKILL.md</strong>에 위치하며, 여러 Command에서 공유해서 호출할 수 있다.
+        "이 작업은 항상 이 방식으로 해야 한다"는 규칙을 캡슐화한다.
+      </p>
+
+      <div class="two-col">
+        <div class="detail-box">
+          <h3>개념</h3>
+          <ul>
+            <li>출력 포맷·규칙을 한 곳에서 관리</li>
+            <li>여러 Command에서 동일 품질 보장</li>
+            <li>자동 트리거 조건 설정 가능</li>
+            <li>Command보다 세밀한 행동 지침</li>
+          </ul>
+        </div>
+        <div class="detail-box">
+          <h3>paper-summary 스킬 적용 대상</h3>
+          <ul>
+            <li><strong>/daily_papers</strong> — 일일 논문 요약</li>
+            <li><strong>/search_topic</strong> — 일회성 검색 요약</li>
+            <li><strong>paper-evaluator</strong> agent — 평가 전 요약</li>
+            <li>사용자가 "요약해줘" 요청 시 자동 적용</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="code-block"><span class="cmt">## paper-summary 출력 형식 (항상 이 구조를 따름)</span>
+
+<span class="tag">## 핵심 기여</span>
+이 논문이 새롭게 제안하거나 보여주는 것. 1~3문장.
+
+<span class="tag">## 방법론</span>
+어떤 모델/기법/데이터셋을 사용했는지. 수식 피하고 핵심 아이디어.
+
+<span class="tag">## 결과</span>
+실험 결과. 수치는 그대로 인용.
+
+<span class="tag">## 한계</span>
+명시되거나 추정되는 한계. 1~2문장.
+
+<span class="tag">## 키워드</span>
+관련 키워드 3~5개 (쉼표로 구분)</div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <p><strong>작성 규칙 5가지:</strong></p>
+        <div class="pill-row">
+          <span class="pill highlight">추측 금지</span>
+          <span class="pill highlight">1~3문장 간결성</span>
+          <span class="pill highlight">모델명 영어 보존</span>
+          <span class="pill highlight">수치 그대로 인용</span>
+          <span class="pill highlight">자연스러운 한국어</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 04 AGENTS ─────────────────────────────────────────────── -->
+  <div class="section-title" id="sec-agents">04 · 서브에이전트</div>
+
+  <div class="card" style="--card-color: #f0a050; --icon-bg: rgba(240,160,80,0.12);">
+    <div class="card-header">
+      <div class="card-icon">🤖</div>
+      <div class="card-title-block">
+        <h2>Subagents</h2>
+        <span class="badge" style="background:#f0a050;">Specialized AI</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>
+        특정 역할에 특화된 <strong>별도 Claude 인스턴스</strong>다. 메인 Claude와 독립된 컨텍스트로 동작하며,
+        정해진 역할·지침·모델·허용 도구를 가진다.
+        <strong>.claude/agents/&lt;이름&gt;.md</strong>에 정의하고 메인 Claude가 필요 시 자동으로 호출한다.
+        복잡한 판단을 전문 에이전트에 위임해 메인 컨텍스트를 아끼는 설계 패턴이다.
+      </p>
+
+      <div class="two-col">
+        <div class="detail-box">
+          <h3>paper-evaluator 에이전트</h3>
+          <ul>
+            <li>모델: <strong>claude-sonnet</strong></li>
+            <li>허용 도구: <strong>Read, Bash</strong> (DB 접근용)</li>
+            <li>트리거: "점수 매겨줘", "읽을 가치 있어?"</li>
+            <li>arxiv_id 또는 abstract 텍스트 입력 허용</li>
+          </ul>
+        </div>
+        <div class="detail-box">
+          <h3>평가 기준 (가중 평균)</h3>
+          <ul>
+            <li><strong>관심 적합도 40%</strong> — config.yaml 키워드 매칭</li>
+            <li><strong>신규성 30%</strong> — 기존 방법과의 차별점</li>
+            <li><strong>실용성 20%</strong> — 실제 적용 가능성</li>
+            <li><strong>임팩트 10%</strong> — 후속 연구 영향력</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="code-block"><span class="cmt">## 출력 예시</span>
+
+점수: <span class="num">8</span>/10
+사유: RAG 파이프라인 개선에 직접 적용 가능한 방법론을 제시하며,
+      config.yaml의 핵심 키워드 <span class="str">"retrieval-augmented"</span>와 정확히 일치.
+읽기 추천: <span class="fn">예</span></div>
+      </div>
+
+      <p style="margin-top:16px;">
+        <strong>Command와 Agent의 차이:</strong> Command는 "무엇을 실행할지" 정의, Agent는 "누가 어떻게 판단할지" 정의.
+        daily_papers 명령이 끝난 후 각 논문을 paper-evaluator가 채점해서 우선순위를 정하는 흐름으로 연계된다.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── 05 HOOKS ───────────────────────────────────────────────── -->
+  <div class="section-title" id="sec-hooks">05 · 훅</div>
+
+  <div class="card" style="--card-color: #e06060; --icon-bg: rgba(224,96,96,0.12);">
+    <div class="card-header">
+      <div class="card-icon">🪝</div>
+      <div class="card-title-block">
+        <h2>Hooks</h2>
+        <span class="badge" style="background:#e06060;">Event Triggers</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>
+        Claude Code의 특정 <strong>이벤트(생명주기 시점)에 자동으로 실행되는 쉘 커맨드 또는 프롬프트</strong>다.
+        <strong>.claude/settings.json</strong>의 <code>hooks</code> 키에 설정하며,
+        "Claude가 응답을 마쳤을 때", "컨텍스트가 압축되기 직전" 같은 이벤트에 반응한다.
+        사용자가 직접 요청하지 않아도 자동으로 실행된다는 점에서 CI/CD 훅과 유사하다.
+      </p>
+
+      <div class="two-col">
+        <!-- PreCompact -->
+        <div class="detail-box">
+          <h3>PreCompact 훅 — 자동 백업</h3>
+          <ul>
+            <li>트리거: 대화 컨텍스트가 압축되기 <strong>직전</strong></li>
+            <li>동작: 세션 중요 내용을 CLAUDE.md에 기록</li>
+            <li>목적: 컨텍스트 소실 전 영구 저장</li>
+            <li>기록 항목: 날짜(년/월/일/시간) 포함</li>
+            <li>적용 범위: 이 프로젝트에만 (local)</li>
+          </ul>
+        </div>
+        <!-- Stop -->
+        <div class="detail-box">
+          <h3>Stop 훅 — 완료 알림</h3>
+          <ul>
+            <li>트리거: Claude가 <strong>응답 완료</strong>할 때마다</li>
+            <li>동작: 시스템 beep 음 출력</li>
+            <li>목적: 긴 작업(summarizer 실행 등) 완료 알림</li>
+            <li>fetcher/summarizer 같은 장시간 작업에 유용</li>
+            <li>적용 범위: 이 프로젝트에만 (local)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="code-block"><span class="cmt">// .claude/settings.json</span>
+{
+  <span class="str">"hooks"</span>: {
+    <span class="str">"PreCompact"</span>: [{
+      <span class="str">"type"</span>: <span class="str">"prompt"</span>,
+      <span class="str">"prompt"</span>: <span class="str">"세션의 중요한 내용을 CLAUDE.md에 날짜와 함께 기록해줘"</span>
+    }],
+    <span class="str">"Stop"</span>: [{
+      <span class="str">"type"</span>: <span class="str">"command"</span>,
+      <span class="str">"command"</span>: <span class="str">"[console]::beep(800, 300)"</span>
+    }]
+  }
+}</div>
+      </div>
+
+      <p style="margin-top:16px; color: var(--text-muted);">
+        훅 설정은 <strong>/update-config</strong> 자연어 명령으로 손쉽게 추가할 수 있다.
+        세부 설정 확인은 <code>cat .claude/settings.json</code>으로 한다.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── 06 MEMORY ──────────────────────────────────────────────── -->
+  <div class="section-title" id="sec-memory">06 · 자동 메모리</div>
+
+  <div class="card" style="--card-color: #9b72cf; --icon-bg: rgba(155,114,207,0.12);">
+    <div class="card-header">
+      <div class="card-icon">🧠</div>
+      <div class="card-title-block">
+        <h2>Auto Memory</h2>
+        <span class="badge" style="background:#9b72cf;">Persistent Context</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>
+        대화 세션이 끝나도 사라지지 않는 <strong>파일 기반 장기 기억 시스템</strong>이다.
+        Claude가 자동으로 사용자 정보, 프로젝트 맥락, 피드백, 외부 리소스 링크를
+        <strong>~/.claude/projects/&lt;프로젝트&gt;/memory/</strong>에 저장하고, 다음 세션에서 로드한다.
+        "저번에 했던 그거…"를 매번 재설명하지 않아도 되는 핵심 기능이다.
+      </p>
+
+      <div class="arch-grid">
+        <div class="arch-node">
+          <div class="arch-icon">👤</div>
+          <div class="arch-label">user</div>
+          <div class="arch-desc">사용자 역할, 경험, 선호도<br>예: "부산대 생성모델 수강생"</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-icon">💬</div>
+          <div class="arch-label">feedback</div>
+          <div class="arch-desc">협업 방식 교정 사항<br>예: "이 방식으로 해달라"</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-icon">🗂️</div>
+          <div class="arch-label">project</div>
+          <div class="arch-desc">진행 중 작업, 결정 이유<br>예: "수업 과제 → 연구 도구"</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="code-block"><span class="cmt">## MEMORY.md (인덱스 파일 — 200줄 제한)</span>
+
+- [user_profile.md](user_profile.md)   — 사용자 정보 및 환경 설정
+- [project_fixes.md](project_fixes.md) — 초기 실행 버그 수정 내역
+
+<span class="cmt">---</span>
+<span class="cmt">## user_profile.md (개별 기억 파일 예시)</span>
+
+---
+<span class="fn">name</span>: user-profile
+<span class="fn">type</span>: user
+---
+부산대 생성모델 수업 수강생. Python 3.11 사용.
+<span class="fn">Why</span>: arXiv 논문 추적기를 과제 + 연구 도구로 제작
+<span class="fn">How to apply</span>: LLM 관련 설명 시 연구 맥락에서 설명</div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <p><strong>CLAUDE.md vs Memory의 차이:</strong></p>
+        <table class="compare-table" style="margin-top:12px;">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>CLAUDE.md</th>
+              <th>Auto Memory</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>위치</td>
+              <td>프로젝트 루트 (git 관리)</td>
+              <td>~/.claude/projects/ (로컬 전용)</td>
+            </tr>
+            <tr>
+              <td>내용</td>
+              <td>프로젝트 규칙, 아키텍처, 컨벤션</td>
+              <td>사용자 프로필, 피드백, 세션 맥락</td>
+            </tr>
+            <tr>
+              <td>수정 주체</td>
+              <td>사람 + Claude (/my_save로)</td>
+              <td>Claude가 자동으로 판단 후 저장</td>
+            </tr>
+            <tr>
+              <td>공유 여부</td>
+              <td>팀 전체 공유 가능</td>
+              <td>나만 사용 (개인화)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HOW IT ALL CONNECTS ──────────────────────────────────── -->
+  <div class="section-title">전체 흐름 — 기술들이 연결되는 방식</div>
+
+  <div class="card" style="--card-color: #4fa8e0; --icon-bg: rgba(79,168,224,0.12);">
+    <div class="card-header">
+      <div class="card-icon">🔗</div>
+      <div class="card-title-block">
+        <h2>통합 아키텍처</h2>
+        <span class="badge" style="background:#4fa8e0;">How It Fits Together</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>6가지 기술은 독립적으로 쓰이지 않고 서로 연계되어 동작한다.</p>
+
+      <div style="margin: 20px 0;">
+        <div class="flow" style="flex-direction: column; align-items: flex-start; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="flow-step" style="background:rgba(124,106,247,0.15); border-color:#7c6af7; min-width:160px;">📄 CLAUDE.md 로드</div>
+            <span style="color:var(--text-muted); font-size:13px;">→ Claude에 프로젝트 규칙 주입 (세션 시작 시 자동)</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="flow-step" style="background:rgba(155,114,207,0.15); border-color:#9b72cf; min-width:160px;">🧠 Memory 로드</div>
+            <span style="color:var(--text-muted); font-size:13px;">→ 사용자 프로필, 이전 세션 맥락 복원</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="flow-step" style="background:rgba(79,168,224,0.15); border-color:#4fa8e0; min-width:160px;">⚡ /daily_papers</div>
+            <span style="color:var(--text-muted); font-size:13px;">→ fetcher 실행 → summarizer 실행 → 결과 표시</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="flow-step" style="background:rgba(80,200,120,0.15); border-color:#50c878; min-width:160px;">🔧 paper-summary 적용</div>
+            <span style="color:var(--text-muted); font-size:13px;">→ 5섹션 형식 강제 (요약 품질 일관성 보장)</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="flow-step" style="background:rgba(240,160,80,0.15); border-color:#f0a050; min-width:160px;">🤖 paper-evaluator</div>
+            <span style="color:var(--text-muted); font-size:13px;">→ 각 논문 1~10점 채점 (읽기 우선순위 결정)</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="flow-step" style="background:rgba(224,96,96,0.15); border-color:#e06060; min-width:160px;">🪝 Stop 훅 실행</div>
+            <span style="color:var(--text-muted); font-size:13px;">→ 완료 beep 알림 (긴 작업 종료 감지)</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="flow-step" style="background:rgba(79,168,224,0.15); border-color:#4fa8e0; min-width:160px;">⚡ /my_save</div>
+            <span style="color:var(--text-muted); font-size:13px;">→ 세션 결정사항을 CLAUDE.md에 영구 반영</span>
+          </div>
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr><th>기술</th><th>역할</th><th>파일 위치</th><th>호출 방식</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>📄 CLAUDE.md</td>
+            <td>프로젝트 규칙·컨벤션 전달</td>
+            <td>프로젝트 루트</td>
+            <td>자동 로드</td>
+          </tr>
+          <tr>
+            <td>⚡ Slash Commands</td>
+            <td>반복 작업 자동화</td>
+            <td>.claude/commands/</td>
+            <td>/명령어 입력</td>
+          </tr>
+          <tr>
+            <td>🔧 Skills</td>
+            <td>출력 형식 표준화</td>
+            <td>.claude/skills/</td>
+            <td>자동 트리거 or 명시 호출</td>
+          </tr>
+          <tr>
+            <td>🤖 Subagents</td>
+            <td>전문 판단 위임</td>
+            <td>.claude/agents/</td>
+            <td>메인 Claude가 자동 호출</td>
+          </tr>
+          <tr>
+            <td>🪝 Hooks</td>
+            <td>이벤트 기반 자동 실행</td>
+            <td>.claude/settings.json</td>
+            <td>이벤트 발생 시 자동</td>
+          </tr>
+          <tr>
+            <td>🧠 Auto Memory</td>
+            <td>세션 간 컨텍스트 유지</td>
+            <td>~/.claude/projects/.../memory/</td>
+            <td>자동 저장/로드</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<div class="footer">
+  arxiv-tracker · 부산대 생성모델 수업 프로젝트 · 2026<br>
+  <span style="opacity:0.5; margin-top:4px; display:block;">이 문서는 .claude/ 디렉터리의 실제 파일을 분석해 자동 생성되었습니다.</span>
+</div>
+
+</body>
+</html>
