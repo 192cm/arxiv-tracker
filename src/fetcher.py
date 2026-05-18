@@ -85,8 +85,13 @@ def fetch_recent_papers() -> list[dict]:
 
 def main() -> None:
     db.init_db()
-    print(f"[fetcher] querying arXiv...")
-    new = fetch_recent_papers()
+    print("[fetcher] querying arXiv...")
+    try:
+        new = fetch_recent_papers()
+    except Exception as e:
+        print(f"[fetcher] 네트워크 오류 — arXiv에 연결할 수 없습니다: {e}")
+        print("[fetcher] 기존 DB의 논문을 사용합니다.")
+        return
     print(f"[fetcher] {len(new)} new papers saved")
     for p in new[:5]:
         print(f"  - {p['arxiv_id']}  {p['title'][:80]}")

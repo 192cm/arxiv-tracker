@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& \"C:\\\\Users\\\\kyle0\\\\miniconda3\\\\Scripts\\\\conda.exe\" run -n arxiv python -m src.fetcher 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\kyle0\\\\miniconda3\\\\Scripts\\\\conda.exe\" run -n arxiv python -m src.summarizer 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\kyle0\\\\miniconda3\\\\Scripts\\\\conda.exe\" run -n arxiv python _query_top5.py 2>&1)",
+      "PowerShell($env:PYTHONIOENCODING = \"utf-8\"; & \"C:\\\\Users\\\\kyle0\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" _query_top5.py 2>&1)",
+      "PowerShell($env:PYTHONIOENCODING = \"utf-8\"; Start-Process -FilePath \"C:\\\\Users\\\\kyle0\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -ArgumentList \"-m\", \"uvicorn\", \"src.app:app\", \"--port\", \"8000\" -WorkingDirectory \"C:\\\\Users\\\\kyle0\\\\Develops\\\\arxiv-tracker\" -PassThru -WindowStyle Hidden; Start-Sleep -Seconds 3; try { $r = Invoke-WebRequest -Uri \"http://localhost:8000\" -TimeoutSec 5; \"HTTP $\\($r.StatusCode\\) OK — 페이지 로드 성공 \\($\\($r.Content.Length\\) bytes\\)\" } catch { \"오류: $_\" })",
+      "PowerShell(Start-Sleep -Seconds 2; try { $r = Invoke-WebRequest -Uri \"http://localhost:8000\" -TimeoutSec 5 -UseBasicParsing; \"HTTP $\\($r.StatusCode\\) — 페이지 로드 성공 \\($\\($r.Content.Length\\) bytes\\)\" } catch { \"오류: $_\" })"
+    ]
+  }
+}

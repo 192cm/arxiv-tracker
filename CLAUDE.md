@@ -44,3 +44,4 @@ uvicorn src.app:app --reload   # 웹
 - arXiv API는 polite하게: `client = arxiv.Client(delay_seconds=3)`. 더 짧게 줄이지 말 것.
 - Gemini API는 무료 티어가 넉넉하지만 분당/일당 요청 한도가 있음. 대량 요약 시 sleep 추가 고려.
 - 새 키워드 추가 시 `config.yaml`에만 추가. 코드 수정 불필요.
+- 외부 API가 차단된 환경(학교 서버 등)에서는 로컬에서 fetcher/summarizer를 먼저 실행한 뒤 `data/papers.db`만 복사한다. 웹 서버는 DB만 읽으므로 API 없이 동작한다.
