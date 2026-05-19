@@ -22,7 +22,14 @@
       "PowerShell(Set-Location \"c:\\\\Users\\\\kyle0\\\\Develops\\\\arxiv-tracker\"; & \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -m src.summarizer 2>&1)",
       "PowerShell(Set-Location \"c:\\\\Users\\\\kyle0\\\\Develops\\\\arxiv-tracker\"; & \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\arxiv\\\\python.exe\" -m uvicorn src.app:app --reload --port 8000 2>&1)",
       "Read(//c/Users/kyle0/.claude/projects/c--Users-kyle0-Develops-arxiv-tracker/memory/**)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "WebSearch",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git filter-branch *)",
+      "Bash(git stash *)",
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --msg-filter 'sed \"/^Co-Authored-By:/d\"' a9a16c2..HEAD)"
     ],
     "additionalDirectories": [
       "c:\\Users\\kyle0\\.claude\\projects\\c--Users-kyle0-Develops-arxiv-tracker\\memory"
